@@ -1,0 +1,142 @@
+name: Build and publish
+
+on: [workflow_dispatch]
+
+jobs:
+  # Lint changed templates.
+  xlint:
+    name: Lint templates
+    runs-on: ubuntu-18.04
+
+    env:
+      PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/tmp/bin'
+      XLINT: '1'
+      LICENSE_LIST: common/travis/license.lst
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Clone repo
+        run: git clone https://github.com/void-linux/void-packages/
+      - name: Set template
+        run: |
+          mkdir -p void-packages/srcpkgs/nody-greeter
+          cp template void-packages/srcpkgs/nody-greeter
+          cd void-packages
+          git config user.email "amyuki4@gmail.com"
+          git config user.name "JezerBot"
+          version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' srcpkgs/nody-greeter/template)
+          pkgname=$(awk 'BEGIN {FS="="} /pkgname=/ {print $2}' srcpkgs/nody-greeter/template)
+          git add srcpkgs/nody-greeter
+          git commit -m "New package: ${pkgname}-${version}"
+      - name: common/travis/fetch_upstream.sh
+        run: |
+          cd void-packages
+          common/travis/fetch_upstream.sh
+      - name: common/travis/changed_templates.sh
+        run: |
+          cd void-packages
+          common/travis/changed_templates.sh
+      - name: common/travis/fetch-xbps.sh
+        run: |
+          cd void-packages
+          common/travis/fetch-xbps.sh
+      - name: common/travis/fetch-xtools.sh
+        run: |
+          cd void-packages
+          common/travis/fetch-xtools.sh
+      - name: common/travis/xlint.sh
+        run: |
+          cd void-packages
+          common/travis/xlint.sh
+
+  # Build changed packages.
+  build:
+    name: Build packages
+    runs-on: ubuntu-18.04
+
+    container:
+      image: 'ghcr.io/void-linux/xbps-src-masterdir:20210313rc01-${{ matrix.config.bootstrap }}'
+      env:
+        PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/tmp/bin'
+        ARCH: '${{ matrix.config.arch }}'
+        BOOTSTRAP: '${{ matrix.config.bootstrap }}'
+        TEST: '${{ matrix.config.test }}'
+        HOSTREPO: /hostrepo
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: x86_64, bootstrap: x86_64, test: 1 }
+          - { arch: i686, bootstrap: i686, test: 1 }
+          - { arch: aarch64, bootstrap: x86_64, test: 0 }
+          - { arch: armv7l, bootstrap: x86_64, test: 0 }
+          - { arch: x86_64-musl, bootstrap: x86_64-musl, test: 1 }
+          - { arch: armv6l-musl, bootstrap: x86_64-musl, test: 0 }
+          - { arch: aarch64-musl, bootstrap: x86_64-musl, test: 0 }
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 200
+      - name: Prepare container
+        run: |
+          # Sync and upgrade once, assume error comes from xbps update
+          xbps-install -Syu || xbps-install -yu xbps
+          # Upgrade again (in case there was a xbps update)
+          xbps-install -yu
+          xbps-install -y git
+      - name: Clone repo
+        run: git clone https://github.com/void-linux/void-packages/
+      - name: Set template
+        run: |
+          mkdir -p void-packages/srcpkgs/nody-greeter
+          cp template void-packages/srcpkgs/nody-greeter
+          cd void-packages
+          git config user.email "amyuki4@gmail.com"
+          git config user.name "JezerBot"
+          version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' srcpkgs/nody-greeter/template)
+          pkgname=$(awk 'BEGIN {FS="="} /pkgname=/ {print $2}' srcpkgs/nody-greeter/template)
+          echo "package_version=${version}" >> $GITHUB_ENV
+          echo "package_name=${version}" >> $GITHUB_ENV
+          git add srcpkgs/nody-greeter
+          git commit -m "New package: ${pkgname}-${version}"
+      - name: Create hostrepo and prepare masterdir
+        run: |
+          ln -s "$(pwd)/void-packages" /hostrepo &&
+          cd void-packages &&
+          common/travis/set_mirror.sh &&
+          common/travis/prepare.sh &&
+          common/travis/fetch_upstream.sh &&
+          common/travis/fetch-xtools.sh
+      - name: common/travis/changed_templates.sh
+        run: |
+          cd void-packages
+          common/travis/changed_templates.sh
+
+      - name: Build and check packages
+        run: |
+          (
+          here="$(pwd)/void-packages"
+          cd /
+          "$here/common/travis/build.sh" "$BOOTSTRAP" "$ARCH" "$TEST"
+          )
+      - name: Show files
+        run: |
+          (
+          here="$(pwd)/void-packages"
+          cd /
+          "$here/common/travis/show_files.sh" "$BOOTSTRAP" "$ARCH"
+          )
+      - name: Verify repository state
+        run: |
+          (
+          here="$(pwd)/void-packages"
+          cd /
+          "$here/common/travis/check-install.sh" "$BOOTSTRAP" "$ARCH"
+          )
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.package_name }}-${{ env.package_version }}-${{ matrix.config.arch }}
+          path: ./void-packages/hostdir/binpkgs/nody-greeter-*.xbps
