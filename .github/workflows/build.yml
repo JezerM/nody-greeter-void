@@ -98,7 +98,7 @@ jobs:
           version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' srcpkgs/nody-greeter/template)
           pkgname=$(awk 'BEGIN {FS="="} /pkgname=/ {print $2}' srcpkgs/nody-greeter/template)
           echo "package_version=${version}" >> $GITHUB_ENV
-          echo "package_name=${version}" >> $GITHUB_ENV
+          echo "package_name=${pkgname}" >> $GITHUB_ENV
           git add srcpkgs/nody-greeter
           git commit -m "New package: ${pkgname}-${version}"
       - name: Create hostrepo and prepare masterdir
@@ -135,8 +135,24 @@ jobs:
           cd /
           "$here/common/travis/check-install.sh" "$BOOTSTRAP" "$ARCH"
           )
+      - name: Some checks
+        run: |
+          echo "\$ ls"
+          ls
+          echo "\$ ls void-packages"
+          ls void-packages
+          echo "\$ ls void-packages/hostdir"
+          ls void-packages/hostdir
+          echo "\$ ls void-packages/hostdir/binpkgs"
+          ls void-packages/hostdir/binpkgs
+          echo "\$ ls \$HOSTREPO"
+          ls $HOSTREPO
+          echo "\$ ls \$HOME"
+          ls $HOME
+          echo "\$ ls \$HOME/hostdir"
+          ls $HOME/hostdir
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.package_name }}-${{ env.package_version }}-${{ matrix.config.arch }}
-          path: ./void-packages/hostdir/binpkgs/nody-greeter-*.xbps
+          path: ~/hostdir/binpkgs/*.xbps
