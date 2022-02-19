@@ -137,11 +137,11 @@ jobs:
           )
       - name: Some checks
         run: |
-          echo "$(realpath \$HOME/hostdir/binpkgs)"
+          echo "$(realpath $HOME/hostdir/binpkgs)"
           echo "\$ ls \$HOME/hostdir/binpkgs"
           ls $HOME/hostdir/binpkgs
       - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ env.package_name }}-${{ env.package_version }}-${{ matrix.config.arch }}
           path: ~/hostdir/binpkgs/*.xbps
