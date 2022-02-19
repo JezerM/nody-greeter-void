@@ -137,22 +137,11 @@ jobs:
           )
       - name: Some checks
         run: |
-          echo "\$ ls"
-          ls
-          echo "\$ ls void-packages"
-          ls void-packages
-          echo "\$ ls void-packages/hostdir"
-          ls void-packages/hostdir
-          echo "\$ ls void-packages/hostdir/binpkgs"
-          ls void-packages/hostdir/binpkgs
-          echo "\$ ls \$HOSTREPO"
-          ls $HOSTREPO
-          echo "\$ ls \$HOME"
-          ls $HOME
-          echo "\$ ls \$HOME/hostdir"
-          ls $HOME/hostdir
+          echo "$(realpath \$HOME/hostdir/binpkgs)"
+          echo "\$ ls \$HOME/hostdir/binpkgs"
+          ls $HOME/hostdir/binpkgs
       - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: ${{ env.package_name }}-${{ env.package_version }}-${{ matrix.config.arch }}
           path: ~/hostdir/binpkgs/*.xbps
