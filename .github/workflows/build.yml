@@ -19,7 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Clone repo
-        run: git clone https://github.com/void-linux/void-packages/
+        uses: actions/checkout@v2
+        with:
+          repository: void-linux/void-packages
+          path: void-packages
+          fetch-depth: 200
       - name: Set template
         run: |
           mkdir -p "void-packages/srcpkgs/${PKGNAME}"
@@ -91,7 +95,11 @@ jobs:
           xbps-install -yu
           xbps-install -y git
       - name: Clone repo
-        run: git clone https://github.com/void-linux/void-packages/
+        uses: actions/checkout@v2
+        with:
+          repository: void-linux/void-packages
+          path: void-packages
+          fetch-depth: 200
       - name: Set template
         run: |
           mkdir -p "void-packages/srcpkgs/${PKGNAME}"
