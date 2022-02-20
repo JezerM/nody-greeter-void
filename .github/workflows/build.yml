@@ -2,6 +2,9 @@ name: Build and publish
 
 on: [workflow_dispatch]
 
+env:
+  PKGNAME: nody-greeter
+
 jobs:
   # Lint changed templates.
   xlint:
@@ -19,15 +22,16 @@ jobs:
         run: git clone https://github.com/void-linux/void-packages/
       - name: Set template
         run: |
-          mkdir -p void-packages/srcpkgs/nody-greeter
-          cp template void-packages/srcpkgs/nody-greeter
+          mkdir -p "void-packages/srcpkgs/${PKGNAME}"
+          cp template "void-packages/srcpkgs/${PKGNAME}"
+      - name: Commit package
+        run: |
           cd void-packages
           git config user.email "amyuki4@gmail.com"
           git config user.name "JezerBot"
-          version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' srcpkgs/nody-greeter/template)
-          pkgname=$(awk 'BEGIN {FS="="} /pkgname=/ {print $2}' srcpkgs/nody-greeter/template)
-          git add srcpkgs/nody-greeter
-          git commit -m "New package: ${pkgname}-${version}"
+          version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' "srcpkgs/${PKGNAME}/template")
+          git add "srcpkgs/${PKGNAME}"
+          git commit -m "New package: ${PKGNAME}-${version}"
       - name: common/travis/fetch_upstream.sh
         run: |
           cd void-packages
@@ -68,12 +72,12 @@ jobs:
       matrix:
         config:
           - { arch: x86_64, bootstrap: x86_64, test: 1 }
-          - { arch: i686, bootstrap: i686, test: 1 }
+          #- { arch: i686, bootstrap: i686, test: 1 }
           - { arch: aarch64, bootstrap: x86_64, test: 0 }
           - { arch: armv7l, bootstrap: x86_64, test: 0 }
-          - { arch: x86_64-musl, bootstrap: x86_64-musl, test: 1 }
-          - { arch: armv6l-musl, bootstrap: x86_64-musl, test: 0 }
-          - { arch: aarch64-musl, bootstrap: x86_64-musl, test: 0 }
+          #- { arch: x86_64-musl, bootstrap: x86_64-musl, test: 1 }
+          #- { arch: armv6l-musl, bootstrap: x86_64-musl, test: 0 }
+          #- { arch: aarch64-musl, bootstrap: x86_64-musl, test: 0 }
 
     steps:
       - uses: actions/checkout@v1
@@ -90,17 +94,17 @@ jobs:
         run: git clone https://github.com/void-linux/void-packages/
       - name: Set template
         run: |
-          mkdir -p void-packages/srcpkgs/nody-greeter
-          cp template void-packages/srcpkgs/nody-greeter
+          mkdir -p "void-packages/srcpkgs/${PKGNAME}"
+          cp template "void-packages/srcpkgs/${PKGNAME}"
+      - name: Commit package
+        run: |
           cd void-packages
           git config user.email "amyuki4@gmail.com"
           git config user.name "JezerBot"
-          version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' srcpkgs/nody-greeter/template)
-          pkgname=$(awk 'BEGIN {FS="="} /pkgname=/ {print $2}' srcpkgs/nody-greeter/template)
+          version=$(awk 'BEGIN {FS="="} /version=/ {print $2}' "srcpkgs/${PKGNAME}/template")
           echo "package_version=${version}" >> $GITHUB_ENV
-          echo "package_name=${pkgname}" >> $GITHUB_ENV
-          git add srcpkgs/nody-greeter
-          git commit -m "New package: ${pkgname}-${version}"
+          git add "srcpkgs/${PKGNAME}"
+          git commit -m "New package: ${PKGNAME}-${version}"
       - name: Create hostrepo and prepare masterdir
         run: |
           ln -s "$(pwd)/void-packages" /hostrepo &&
@@ -143,5 +147,5 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.package_name }}-${{ env.package_version }}-${{ matrix.config.arch }}
+          name: ${{ env.PKGNAME }}-${{ env.package_version }}-${{ matrix.config.arch }}
           path: ~/hostdir/binpkgs/*.xbps
