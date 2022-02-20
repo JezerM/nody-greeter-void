@@ -157,3 +157,5 @@ jobs:
         with:
           name: ${{ env.PKGNAME }}-${{ env.package_version }}-${{ matrix.config.arch }}
           path: ~/hostdir/binpkgs/*.xbps
+          retention-days: 7
+
