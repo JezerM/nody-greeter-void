@@ -1,6 +1,6 @@
 # Template file for 'nody-greeter'
 pkgname=nody-greeter
-version=1.4.0
+version=1.4.1
 revision=1
 conf_files="/etc/lightdm/web-greeter.yml /etc/lightdm/Xgreeter /etc/xdg/lightdm/lightdm.conf.d/90-greeter-wrapper.conf"
 hostmakedepends="base-devel nodejs python3"
@@ -11,7 +11,7 @@ maintainer="JezerM <amyuki4@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/JezerM/nody-greeter"
 distfiles="https://github.com/JezerM/nody-greeter/archive/${version}.tar.gz>${pkgname}-${version}.tar.gz"
-checksum="4607700d5b8ac1462299bd71aa55b2e94117a26c37ccafe3f17defb1bee484ff"
+checksum="217ee316f286610d75bf221939d1c7d19cea0b51c5e46b4ec5df33a6b8682263"
 mutable_files="/usr/share/web-greeter/*"
 
 get_target_arch() {
