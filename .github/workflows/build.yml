@@ -9,7 +9,7 @@ jobs:
   # Lint changed templates.
   xlint:
     name: Lint templates
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     env:
       PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/tmp/bin'
@@ -60,10 +60,10 @@ jobs:
   # Build changed packages.
   build:
     name: Build packages
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     container:
-      image: 'ghcr.io/void-linux/xbps-src-masterdir:20210313rc01-${{ matrix.config.bootstrap }}'
+      image: 'ghcr.io/void-linux/xbps-src-masterdir:20220527RC01-${{ matrix.config.bootstrap }}'
       env:
         PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/tmp/bin'
         ARCH: '${{ matrix.config.arch }}'
