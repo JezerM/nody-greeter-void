@@ -11,7 +11,7 @@ maintainer="JezerM <amyuki4@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/JezerM/nody-greeter"
 distfiles="https://github.com/JezerM/nody-greeter/archive/${version}.tar.gz>${pkgname}-${version}.tar.gz"
-checksum="217ee316f286610d75bf221939d1c7d19cea0b51c5e46b4ec5df33a6b8682263"
+checksum="6685bf73f90ba26642c686eff903a59eb28d69e5fd75c3ef2b8b945d0caf3894"
 mutable_files="/usr/share/web-greeter/*"
 
 get_target_arch() {
