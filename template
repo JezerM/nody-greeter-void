@@ -4,7 +4,7 @@ version=1.5.0
 revision=1
 conf_files="/etc/lightdm/web-greeter.yml /etc/lightdm/Xgreeter /etc/xdg/lightdm/lightdm.conf.d/90-greeter-wrapper.conf"
 hostmakedepends="base-devel nodejs python3"
-makedepends="base-devel libxcb-devel libX11-devel liblightdm-gobject gobject-introspection cairo"
+makedepends="base-devel libxcb-devel libX11-devel liblightdm-gobject gobject-introspection cairo liblzma-devel"
 depends="lightdm liblightdm-gobject libgirepository"
 short_desc="LightDM greeter made with node.js"
 maintainer="JezerM <amyuki4@gmail.com>"
@@ -38,6 +38,8 @@ export npm_config_arch=${_target_arch}
 
 pre_build() {
 	echo "Trying to install npm packages as ${npm_config_arch}"
+	npm i node-abi@3.0.0
+	npm i electron-rebuild@2.3.5
 	npm clean-install
 }
 
