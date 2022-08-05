@@ -38,9 +38,15 @@ export npm_config_arch=${_target_arch}
 
 pre_build() {
 	echo "Trying to install npm packages as ${npm_config_arch}"
-	npm clean-install --loglevel verbose
-	ls
-	cat ./npm-debug.log
+	ls -a
+	npm install --loglevel verbose || {
+			ls -a
+			ls -a node_modules/;
+			cd node_modules/lzma-native;
+			ls build/liblzma;
+			cat build/liblzma/node_liblzma_config.log;
+			exit 1;
+		}
 }
 
 do_build() {
