@@ -2,6 +2,7 @@
 pkgname=nody-greeter
 version=1.5.0
 revision=1
+wrksrc="${pkgname}-master"
 conf_files="/etc/lightdm/web-greeter.yml /etc/lightdm/Xgreeter /etc/xdg/lightdm/lightdm.conf.d/90-greeter-wrapper.conf"
 hostmakedepends="base-devel nodejs python3"
 makedepends="base-devel libxcb-devel libX11-devel liblightdm-gobject gobject-introspection cairo liblzma-devel"
@@ -10,8 +11,8 @@ short_desc="LightDM greeter made with node.js"
 maintainer="JezerM <amyuki4@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/JezerM/nody-greeter"
-distfiles="https://github.com/JezerM/nody-greeter/archive/${version}.tar.gz>${pkgname}-${version}.tar.gz"
-checksum="6685bf73f90ba26642c686eff903a59eb28d69e5fd75c3ef2b8b945d0caf3894"
+distfiles="https://github.com/JezerM/nody-greeter/archive/master.tar.gz>${pkgname}-${version}.tar.gz"
+checksum="6206b25e676251052f72ec5f7f30a783345fce473c3c32cec20721ef6c370e87"
 mutable_files="/usr/share/web-greeter/*"
 
 get_target_arch() {
@@ -36,17 +37,18 @@ get_target_arch() {
 _target_arch=$(get_target_arch)
 export npm_config_arch=${_target_arch}
 
+do_configure() {
+	ls
+	git init
+	rm -rf themes/
+	git submodule add https://github.com/JezerM/web-greeter-themes.git themes/
+	git submodule update --init --recursive
+}
+
 pre_build() {
 	echo "Trying to install npm packages as ${npm_config_arch}"
 	ls -a
-	npm install --loglevel verbose || {
-			ls -a
-			ls -a node_modules/;
-			cd node_modules/lzma-native;
-			ls build/liblzma;
-			cat build/liblzma/node_liblzma_config.log;
-			exit 1;
-		}
+	npm install --loglevel verbose
 }
 
 do_build() {
