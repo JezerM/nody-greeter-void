@@ -39,6 +39,8 @@ jobs:
       - name: common/travis/changed_templates.sh
         run: |
           cd void-packages
+          git remote -v
+          git rev-list -1 --parents HEAD
           common/travis/changed_templates.sh
       - name: common/travis/fetch-xbps.sh
         run: |

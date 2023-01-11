@@ -1,6 +1,6 @@
 # Template file for 'nody-greeter'
 pkgname=nody-greeter
-version=1.5.1
+version=1.5.2
 revision=1
 #wrksrc="${pkgname}-${version}"
 conf_files="/etc/lightdm/web-greeter.yml /etc/lightdm/Xgreeter /etc/xdg/lightdm/lightdm.conf.d/90-greeter-wrapper.conf"
