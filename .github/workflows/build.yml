@@ -24,6 +24,7 @@ jobs:
           repository: void-linux/void-packages
           path: void-packages
           fetch-depth: 200
+      - run: cd void-packages && git remote set-head origin --auto
       - name: Set template
         run: |
           mkdir -p "void-packages/srcpkgs/${PKGNAME}"
@@ -41,6 +42,7 @@ jobs:
           cd void-packages
           git remote -v
           git rev-list -1 --parents HEAD
+          git branch -r
           common/travis/changed_templates.sh
       - name: common/travis/fetch-xbps.sh
         run: |
@@ -83,8 +85,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-        with:
-          fetch-depth: 200
       - name: Prepare container
         run: |
           # Sync and upgrade once, assume error comes from xbps update
@@ -98,6 +98,7 @@ jobs:
           repository: void-linux/void-packages
           path: void-packages
           fetch-depth: 200
+      - run: cd void-packages && git remote set-head origin --auto
       - name: Set template
         run: |
           mkdir -p "void-packages/srcpkgs/${PKGNAME}"
